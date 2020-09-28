@@ -11,10 +11,32 @@ int main(int argc, char *argv[])
     // Situação de ordem do arquivo, 1 = Ascendente, 2 = Decrescente, 3 = Aleatorio
     int situacao = atoi(argv[3]);
     // Argumento [-P] = Apresentar os dados dos alunos a serem ordenados e o resultado da ordenação realizada na tela
-    // implementar
+    int p;
+    // Se o numero de argumentos for igual a 5 ele verifica se o quinto argumento é igual a "-P"
+    if (argc == 5) {
+		p = !strcmp(argv[4], "-P");
+	} else {
+		p = 0;
+	}
 
-    FILE *arquivoGerado;
-    // Variável responsavel para receber o arquivo gerado
+    // Arquivo contendo todos os dados dos alunos
+    FILE *arqProvao;
+    if ((arqProvao = fopen("PROVAO.txt", "r")) == NULL)
+    {
+        puts("> Nao foi possivel abrir o arquivo!\n");
+    }
+
+    // Arquivo temporario para conter apenas os N primeiros alunos
+    FILE *arqTemporario;
+    if ((arqTemporario = fopen("arqTemporario.bin", "w+b")) == NULL)
+    {
+        puts("> Nao foi possivel abrir o arquivo!\n");
+    }
+
+    criarArquivoTemporario(arqProvao, arqTemporario, quantidade);
+    rewind(arqTemporario);
+
+    // Verifica se respeita todas as condições e ordena o arquivo temporario de acordo com a situacao
     if (quantidade > 0 && (situacao >= 1 && situacao <= 3) && (metodo >= 1 && metodo <= 3))
     {
         // Ordenar o provao de forma crescente
@@ -23,10 +45,6 @@ int main(int argc, char *argv[])
         } 
         // Ordenar o provao de forma descrescente
         else if(situacao == 2){
-
-        }
-        // Caso seja aleatorio colocar no arquivo gerado apenas N registros
-        else {
 
         }
     }
@@ -101,6 +119,9 @@ int main(int argc, char *argv[])
     }
 
     printf("\n");
+
+    fclose(arqProvao);
+    fclose(arqTemporario);
 
     return 0;
 }
