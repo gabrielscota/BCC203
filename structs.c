@@ -1,3 +1,6 @@
+#include <stdlib.h>
+#include <string.h>
+
 #define FF 40 // Numero de fitas magneticas
 #define F (FF/2)
 
