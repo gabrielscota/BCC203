@@ -1,9 +1,12 @@
 #ifndef STRUCTS_H
 #define STRUCTS_H
 
-#define FF 40 // Numero de fitas magneticas
+// Numero de fitas de armazenamento externo
+#define FF 40
+// Numero de fitas para ser armazenado memória interna disponivel
 #define F (FF/2)
 
+// Estrutura do registro que está no arquivo do PROVAO.txt, foi adicionado 1 caractere nas strings por conta do /0
 typedef struct Registro {
     long int numeroInscricao;
     double nota;
