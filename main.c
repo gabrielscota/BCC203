@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
+#include <string.h>
+#include "structs.c"
 // #include "metodo2.c"
 
 int main(int argc, char *argv[])
@@ -85,19 +87,19 @@ int main(int argc, char *argv[])
     {
     case 1:
         printf("> Intercalacao Balanceada de varios caminhos - (Metodo de ordenacao)\n");
-        clock_t tempoInicialDeExecucao = clock();
+        tempoInicialDeExecucao = clock();
         // Chama o metodo aqui
         tempoTotalDeExecucao = clock() - tempoInicialDeExecucao;
         break;
     case 2:
         printf("> Intercalacao Balanceada de varios caminhos - Selecao por substituicao\n");
-        clock_t tempoInicialDeExecucao = clock();
+        tempoInicialDeExecucao = clock();
         // metodo2(quantidade, arqTemporario, &numeroDeLeituras, &numeroDeEscritas, &numeroDeComparacoesEntreValores);
         tempoTotalDeExecucao = clock() - tempoInicialDeExecucao;
         break;
     case 3:
         printf("> Quicksort externo\n");
-        clock_t tempoInicialDeExecucao = clock();
+        tempoInicialDeExecucao = clock();
         // Chama o metodo aqui
         tempoTotalDeExecucao = clock() - tempoInicialDeExecucao;
         break;
