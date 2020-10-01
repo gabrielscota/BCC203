@@ -5,8 +5,8 @@ typedef struct Registro {
     long int numeroInscricao;
     double nota;
     char estado[3];
-    char cidade[50];
-    char curso[30];
+    char cidade[51];
+    char curso[31];
 } Registro;
 
 void criarArquivoTemporario(FILE *arq, FILE *temp, int n)
