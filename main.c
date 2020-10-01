@@ -3,68 +3,70 @@
 #include <time.h>
 #include <string.h>
 #include "structs.h"
-// #include "metodo2.c"
+//#include "metodo2.c"
 
-void criarArquivoTemporario(FILE *arq, FILE *temp, int n)
+// Função responsável por criar o arquivo temporario que irá ser utilizado para ser ordenado
+void criarArquivoTemporario(FILE *arqProvao, FILE *arqTemporario, int quantidade)
 {
     Registro registro;
-    for (int i = 0; i < n; i++)
+    for (int i = 0; i < quantidade; i++)
     {
-        // // Fazendo a leitura do numero de inscrição, nota e um ' ' no final para começar a ler o proximo dado
-        fscanf(arq, "%ld %lf ", &registro.numeroInscricao, &registro.nota);
-        fgets(registro.estado, 3, arq);
-        fseek(arq, 1, 1);
-        fgets(registro.cidade, 50, arq);
-        fseek(arq, 2, 1);
-        fgets(registro.curso, 30, arq);
-        // printf("%ld\n", ftell(arq));
-        // printf("%ld | %lf | %s | %s | %s\n", registro.numeroInscricao, registro.nota, registro.estado, registro.cidade, registro.curso);
-        fwrite(&registro, sizeof(Registro), 1, temp);
+        // Fazendo a leitura do numero de inscrição, nota e um ' ' no final para começar a ler o proximo dado
+        fscanf(arqProvao, "%ld %lf ", &registro.numeroInscricao, &registro.nota);
+        // Lê o estado e da o fseek para pular o espaço
+        fgets(registro.estado, 3, arqProvao);
+        fseek(arqProvao, 1, 1);
+        // Lê a cidade e da o fseek para pular o espaço
+        fgets(registro.cidade, 50, arqProvao);
+        fseek(arqProvao, 2, 1);
+        // Lê o curso
+        fgets(registro.curso, 30, arqProvao);
+        fwrite(&registro, sizeof(Registro), 1, arqTemporario);
     }
 }
 
 int main(int argc, char *argv[])
 {
-    // 1 = IBC, 2 = IBC Selecao por Substituicao, 3 = Quicksort externo
+    // 1 = IBVC, 2 = IBVC Seleção por Substituição, 3 = Quicksort externo
     int metodo = atoi(argv[1]);
     // Quantidade de registros do arquivo
     int quantidade = atoi(argv[2]);
-    // Situação de ordem do arquivo, 1 = Ascendente, 2 = Decrescente, 3 = Aleatorio
+    // Situação de ordem do arquivo, 1 = Ascendente, 2 = Decrescente, 3 = Aleatório
     int situacao = atoi(argv[3]);
-    // Argumento [-P] = Apresentar os dados dos alunos a serem ordenados e o resultado da ordenação realizada na tela
-    int p;
-    // Se o numero de argumentos for igual a 5 ele verifica se o quinto argumento é igual a "-P"
+    // Argumento [-P] = Apresentar no console os dados dos alunos a serem ordenados e o resultado da ordenação realizado
+    int imprimirDados;
+    // Se o número de argumentos for igual a 5 ele verifica se o quinto argumento é igual a "-P", se for verdadeiro a função strcmp retorna 1 
     if (argc == 5)
     {
-        p = !strcmp(argv[4], "-P");
+        imprimirDados = !strcmp(argv[4], "-P");
     }
     else
     {
-        p = 0;
+        imprimirDados = 0;
     }
 
     // Arquivo contendo todos os dados dos alunos
     FILE *arqProvao;
 
-    // Arquivo temporario para conter apenas os N primeiros alunos
+    // Arquivo temporário para conter apenas os N primeiros alunos
     FILE *arqTemporario;
 
-    // Verifica se respeita todas as condições e ordena o arquivo temporario de acordo com a situacao
+    // Verifica se respeita todas as condições e ordena o arquivo temporário de acordo com a situção
     if (quantidade > 0 && (situacao >= 1 && situacao <= 3) && (metodo >= 1 && metodo <= 3))
     {
-        // Abre o arquivo provao no modo de leitura após passar todos os testes
+        // Abre o arquivo PROVAO.txt no modo de leitura após passar todos os testes
         if ((arqProvao = fopen("PROVAO.txt", "r")) == NULL)
         {
             puts("> Nao foi possivel abrir o arquivo!\n");
         }
 
-        // Abre o arquivo temporario que ira ser utilizado para a ordenação
+        // Abre o arquivo temporário que irá ser utilizado para a ordenação
         if ((arqTemporario = fopen("arqTemporario.bin", "w+b")) == NULL)
         {
             puts("> Nao foi possivel abrir o arquivo!\n");
         }
 
-        // Metodo responsavel por criar o arquivo temporario com a quantidade de itens informada através do PROVAO
+        // Método responsável por criar o arquivo temporário com a quantidade de itens informada através do arquivo PROVAO.txt
         criarArquivoTemporario(arqProvao, arqTemporario, quantidade);
         rewind(arqTemporario);
 
@@ -77,58 +79,89 @@ int main(int argc, char *argv[])
         {
         }
     }
+    // Verificação para saber se foi digitado um método válido
     else if (metodo < 1 || metodo > 4)
     {
         printf("Informe um método válido!\n");
         return 0;
     }
+    // Verificação para saber se foi digitado uma quantidade positiva de registros a serem ordenados
     else if (quantidade <= 0)
     {
         printf("Informe uma quantide de registros valida!\n");
         return 0;
     }
+    // Verificação para saber se foi digitado uma situação válida
     else if (situacao < 1 || situacao > 3)
     {
         printf("Informe uma situacao valida!\n");
         return 0;
     }
 
-    // Variaveis responsaveis para analisar complexidade de cada metodo
+    printf("\n");
+    printf("> Arquivo temporario ANTES dos dados serem ordenados:\n\n");
+    // Caso a variável 'imprimirDados' seja igual a 1 é impresso no console os dados antes de serem ordenados
+    if (imprimirDados)
+    {
+        for (int i = 0; i < quantidade; i++)
+        {
+            Registro registro;
+            fread(&registro, sizeof(Registro), 1, arqTemporario);
+            printf("\t%d - %ld\t%.2lf\t%s\t%s\t%s\n", i+1, registro.numeroInscricao, registro.nota, registro.estado, registro.cidade, registro.curso);
+        }
+    }
+
+    // Variáveis responsáveis para analisar complexidade de cada método
     clock_t tempoInicialDeExecucao;
     clock_t tempoTotalDeExecucao;
     int numeroDeLeituras = 0;
     int numeroDeEscritas = 0;
     int numeroDeComparacoesEntreValores = 0;
 
-    // Atraves do primeiro paramento da linha comando é selecionado qual metodo executar
+    // Através do primeiro paramento da linha comando é selecionado qual metodo executar
     switch (metodo)
     {
+    // Método 1: Intercalação Balanceada de Vários Caminhos - (Método de ordenação)
     case 1:
-        printf("> Intercalacao Balanceada de varios caminhos - (Metodo de ordenacao)\n");
+        printf("\n> Intercalacao Balanceada de varios caminhos - (Metodo de ordenacao)\n");
         tempoInicialDeExecucao = clock();
         // Chama o metodo aqui
         tempoTotalDeExecucao = clock() - tempoInicialDeExecucao;
         break;
+    // Método 2: Intercalação Balanceada de Vários Caminhos - Seleção por Substituição
     case 2:
-        printf("> Intercalacao Balanceada de varios caminhos - Selecao por substituicao\n");
+        printf("\n> Intercalacao Balanceada de varios caminhos - Selecao por substituicao\n");
         tempoInicialDeExecucao = clock();
-        // metodo2(quantidade, arqTemporario, &numeroDeLeituras, &numeroDeEscritas, &numeroDeComparacoesEntreValores);
+        //metodo2(quantidade, arqTemporario, &numeroDeLeituras, &numeroDeEscritas, &numeroDeComparacoesEntreValores);
         tempoTotalDeExecucao = clock() - tempoInicialDeExecucao;
         break;
+    // Método 3: Quicksort Externo
     case 3:
-        printf("> Quicksort externo\n");
+        printf("\n> Quicksort externo\n");
         tempoInicialDeExecucao = clock();
         // Chama o metodo aqui
         tempoTotalDeExecucao = clock() - tempoInicialDeExecucao;
         break;
     }
 
-    printf("\n----------------------------------------------------------------------------\n");
-    printf("\nNumero total de leituras da memoria externa para a interna: %d vezes!\n", numeroDeLeituras);
-    printf("\nNumero total de escritas da memoria interna para a externa: %d vezes!\n", numeroDeEscritas);
-    printf("\nNumero total de comparacoes entre os valores: %d vezes!\n", numeroDeComparacoesEntreValores);
-    printf("\nTempo de execucao: %.4lf segundos!\n", ((double)tempoTotalDeExecucao) / CLOCKS_PER_SEC);
-    printf("\n----------------------------------------------------------------------------\n");
+    rewind(arqTemporario);
+    printf("\n");
+    printf("\t> Arquivo temporario DEPOIS dos dados serem ordenados\n\n");
+    // Caso a variável 'imprimirDados' seja igual a 1 é impresso no console os dados apos serem ordenados
+    if (imprimirDados)
+    {
+        for (int i = 0; i < quantidade; i++)
+        {
+            Registro registro;
+            fread(&registro, sizeof(Registro), 1, arqTemporario);
+            printf("\t\t%d - %ld\t%.2lf\t%s\t%s\t%s\n", i+1, registro.numeroInscricao, registro.nota, registro.estado, registro.cidade, registro.curso);
+        }
+    }
+
+    printf("\n\t> Numero total de leituras da memoria externa para a interna: %d vezes!\n", numeroDeLeituras);
+    printf("\n\t> Numero total de escritas da memoria interna para a externa: %d vezes!\n", numeroDeEscritas);
+    printf("\n\t> Numero total de comparacoes entre os valores: %d vezes!\n", numeroDeComparacoesEntreValores);
+    printf("\n\t> Tempo de execucao: %.4lf segundos!\n", ((double)tempoTotalDeExecucao) / CLOCKS_PER_SEC);
 
     printf("\n");
 
