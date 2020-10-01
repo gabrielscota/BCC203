@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <time.h>
 #include <string.h>
-#include "structs.c"
+#include "structs.h"
 // #include "metodo2.c"
 
 void criarArquivoTemporario(FILE *arq, FILE *temp, int n)
@@ -17,7 +17,7 @@ void criarArquivoTemporario(FILE *arq, FILE *temp, int n)
         fgets(registro.cidade, 50, arq);
         fseek(arq, 2, 1);
         fgets(registro.curso, 30, arq);
-        printf("%ld\n", ftell(arq));
+        // printf("%ld\n", ftell(arq));
         // printf("%ld | %lf | %s | %s | %s\n", registro.numeroInscricao, registro.nota, registro.estado, registro.cidade, registro.curso);
         fwrite(&registro, sizeof(Registro), 1, temp);
     }
