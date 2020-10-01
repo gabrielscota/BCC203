@@ -5,6 +5,24 @@
 #include "structs.c"
 // #include "metodo2.c"
 
+void criarArquivoTemporario(FILE *arq, FILE *temp, int n)
+{
+    Registro registro;
+    for (int i = 0; i < n; i++)
+    {
+        // // Fazendo a leitura do numero de inscrição, nota e um ' ' no final para começar a ler o proximo dado
+        fscanf(arq, "%ld %lf ", &registro.numeroInscricao, &registro.nota);
+        fgets(registro.estado, 3, arq);
+        fseek(arq, 1, 1);
+        fgets(registro.cidade, 50, arq);
+        fseek(arq, 2, 1);
+        fgets(registro.curso, 30, arq);
+        printf("%ld\n", ftell(arq));
+        // printf("%ld | %lf | %s | %s | %s\n", registro.numeroInscricao, registro.nota, registro.estado, registro.cidade, registro.curso);
+        fwrite(&registro, sizeof(Registro), 1, temp);
+    }
+}
+
 int main(int argc, char *argv[])
 {
     // 1 = IBC, 2 = IBC Selecao por Substituicao, 3 = Quicksort externo
@@ -39,7 +57,7 @@ int main(int argc, char *argv[])
         {
             puts("> Nao foi possivel abrir o arquivo!\n");
         }
-        
+
         // Abre o arquivo temporario que ira ser utilizado para a ordenação
         if ((arqTemporario = fopen("arqTemporario.bin", "w+b")) == NULL)
         {
@@ -50,11 +68,11 @@ int main(int argc, char *argv[])
         criarArquivoTemporario(arqProvao, arqTemporario, quantidade);
         rewind(arqTemporario);
 
-        // Ordenar o provao de forma crescente
+        // Ordenar o arquivo temporario de forma crescente
         if (situacao == 1)
         {
         }
-        // Ordenar o provao de forma descrescente
+        // Ordenar o arquivo temporario de forma descrescente
         else if (situacao == 2)
         {
         }
