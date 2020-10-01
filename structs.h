@@ -1,8 +1,5 @@
-#include <stdlib.h>
-#include <string.h>
-
 #ifndef STRUCTS_H
-#define STRUCtS_H
+#define STRUCTS_H
 
 #define FF 40 // Numero de fitas magneticas
 #define F (FF/2)
