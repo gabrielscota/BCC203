@@ -3,7 +3,8 @@
 #include <time.h>
 #include <string.h>
 #include "structs.h"
-//#include "metodo2.c"
+#include "metodo2.c"
+#include "listaMetodo1e2.c"
 
 // Função responsável por criar o arquivo temporario que irá ser utilizado para ser ordenado
 void criarArquivoTemporario(FILE *arqProvao, FILE *arqTemporario, int quantidade)
@@ -35,7 +36,7 @@ int main(int argc, char *argv[])
     int situacao = atoi(argv[3]);
     // Argumento [-P] = Apresentar no console os dados dos alunos a serem ordenados e o resultado da ordenação realizado
     int imprimirDados;
-    // Se o número de argumentos for igual a 5 ele verifica se o quinto argumento é igual a "-P", se for verdadeiro a função strcmp retorna 1 
+    // Se o número de argumentos for igual a 5 ele verifica se o quinto argumento é igual a "-P", se for verdadeiro a função strcmp retorna 1
     if (argc == 5)
     {
         imprimirDados = !strcmp(argv[4], "-P");
@@ -70,14 +71,65 @@ int main(int argc, char *argv[])
         criarArquivoTemporario(arqProvao, arqTemporario, quantidade);
         rewind(arqTemporario);
 
+
+
+        // ------- Parte reutilizada do metodo 2 para ordenar o arquivo de acordo com a situação -------
+
+        // Criando um vetor para armazenar os ponteiros das fitas
+        FILE **fitas = malloc(FF * sizeof(FILE *));
+        for (int i = 0; i < FF; i++)
+        {
+            char nomeFita[8];
+            // Armazena no buffer do nome a concatenação do F com o inteiro i
+            sprintf(nomeFita, "F%d.bin", i);
+            fitas[i] = fopen(nomeFita, "w+b");
+        }
+
+        // Vetor responsavel por amazernar em cada posicao o numero de registros dentro de cada fita respectivamente, inicializando com 0
+        int *numeroDeRegistrosNaFita = calloc(FF, sizeof(int));
+
+        // Vetor de uma LinkedList para armazenar os blocos de uma fita, onde cada posicao 'i' desse vetor corresponde à fita 'i'
+        Lista blocos[FF];
+        for (int i = 0; i < FF; i++)
+        {
+            blocos[i].primeiroItem = NULL;
+        }
+
+        int temp1, temp2, temp3;
+
         // Ordenar o arquivo temporario de forma crescente
         if (situacao == 1)
         {
+            // Fase de criação dos blocos ordenados, quebrando o arquivo em blocos do tamanho da memoria
+            gerarBlocosOrdenados(quantidade, arqTemporario, fitas, numeroDeRegistrosNaFita, blocos, &temp1, &temp2, &temp3);
+            // Fase de intercalação dos blocos com as fitas
+            intercalarBlocos(quantidade, arqTemporario, fitas, numeroDeRegistrosNaFita, blocos, &temp1, &temp2, &temp3);
+            Registro r1, r2;
+            for (int i = 0; i < quantidade / 2; i++)
+            {
+                fseek(arqTemporario, sizeof(Registro) * i, 0);
+                fread(&r1, sizeof(Registro), 1, arqTemporario);
+                fseek(arqTemporario, -sizeof(Registro) * (i + 1), 2);
+                fread(&r2, sizeof(Registro), 1, arqTemporario);
+
+                fseek(arqTemporario, sizeof(Registro) * i, 0);
+                fwrite(&r2, sizeof(Registro), 1, arqTemporario);
+                fseek(arqTemporario, -sizeof(Registro) * (i + 1), 2);
+                fwrite(&r1, sizeof(Registro), 1, arqTemporario);
+            }
+            rewind(arqTemporario);
         }
         // Ordenar o arquivo temporario de forma descrescente
         else if (situacao == 2)
         {
+            // Fase de criação dos blocos ordenados, quebrando o arquivo em blocos do tamanho da memoria
+            gerarBlocosOrdenados(quantidade, arqTemporario, fitas, numeroDeRegistrosNaFita, blocos, &temp1, &temp2, &temp3);
+            // Fase de intercalação dos blocos com as fitas
+            intercalarBlocos(quantidade, arqTemporario, fitas, numeroDeRegistrosNaFita, blocos, &temp1, &temp2, &temp3);
+            rewind(arqTemporario);
         }
+
+        // ------- Fim da parte reutilizada do metodo 2 para ordenar o arquivo de acordo com a situação -------
     }
     // Verificação para saber se foi digitado um método válido
     else if (metodo < 1 || metodo > 4)
@@ -98,18 +150,19 @@ int main(int argc, char *argv[])
         return 0;
     }
 
-    printf("\n");
-    printf("> Arquivo temporario ANTES dos dados serem ordenados:\n\n");
     // Caso a variável 'imprimirDados' seja igual a 1 é impresso no console os dados antes de serem ordenados
     if (imprimirDados)
     {
+        printf("\n");
+        printf("> Arquivo temporario ANTES dos dados serem ordenados:\n\n");
         for (int i = 0; i < quantidade; i++)
         {
             Registro registro;
             fread(&registro, sizeof(Registro), 1, arqTemporario);
-            printf("\t%d - %ld\t%.2lf\t%s\t%s\t%s\n", i+1, registro.numeroInscricao, registro.nota, registro.estado, registro.cidade, registro.curso);
+            printf("\t%d - %ld\t%.2lf\t%s\t%s\t%s\n", i + 1, registro.numeroInscricao, registro.nota, registro.estado, registro.cidade, registro.curso);
         }
     }
+    rewind(arqTemporario);
 
     // Variáveis responsáveis para analisar complexidade de cada método
     clock_t tempoInicialDeExecucao;
@@ -132,7 +185,7 @@ int main(int argc, char *argv[])
     case 2:
         printf("\n> Intercalacao Balanceada de varios caminhos - Selecao por substituicao\n");
         tempoInicialDeExecucao = clock();
-        //metodo2(quantidade, arqTemporario, &numeroDeLeituras, &numeroDeEscritas, &numeroDeComparacoesEntreValores);
+        metodo2(quantidade, arqTemporario, &numeroDeLeituras, &numeroDeEscritas, &numeroDeComparacoesEntreValores);
         tempoTotalDeExecucao = clock() - tempoInicialDeExecucao;
         break;
     // Método 3: Quicksort Externo
@@ -145,16 +198,16 @@ int main(int argc, char *argv[])
     }
 
     rewind(arqTemporario);
-    printf("\n");
-    printf("\t> Arquivo temporario DEPOIS dos dados serem ordenados\n\n");
     // Caso a variável 'imprimirDados' seja igual a 1 é impresso no console os dados apos serem ordenados
     if (imprimirDados)
     {
+        printf("\n");
+        printf("\t> Arquivo temporario DEPOIS dos dados serem ordenados\n\n");
         for (int i = 0; i < quantidade; i++)
         {
             Registro registro;
             fread(&registro, sizeof(Registro), 1, arqTemporario);
-            printf("\t\t%d - %ld\t%.2lf\t%s\t%s\t%s\n", i+1, registro.numeroInscricao, registro.nota, registro.estado, registro.cidade, registro.curso);
+            printf("\t\t%d - %ld\t%.2lf\t%s\t%s\t%s\n", i + 1, registro.numeroInscricao, registro.nota, registro.estado, registro.cidade, registro.curso);
         }
     }
 
