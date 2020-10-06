@@ -5,7 +5,7 @@
 
 //*******************QuickSort***************************//
 
-int partition(Registro a[], int l, int r, int *transf, int *comp)
+int partition(Registro a[], int l, int r, int *comp)
 {
 	int i, j;
 	Registro pivot, t;
@@ -37,21 +37,21 @@ int partition(Registro a[], int l, int r, int *transf, int *comp)
 	return j;
 }
 
-void quickSort(Registro a[], int l, int r, int *transf, int *comp)
+void quickSort(Registro a[], int l, int r, int *comp)
 {
 	int j;
 	if (l < r)
 	{
 		(*comp)++;
-		j = partition(a, l, r, transf, comp);
-		quickSort(a, l, j - 1, transf, comp);
-		quickSort(a, j + 1, r, transf, comp);
+		j = partition(a, l, r, comp);
+		quickSort(a, l, j - 1, comp);
+		quickSort(a, j + 1, r, comp);
 	}
 }
 
-void sort(Registro v[], int n, int *transf, int *comp)
+void sort(Registro v[], int n, int *comp)
 {
-	quickSort(v, 0, n - 1, transf, comp);
+	quickSort(v, 0, n - 1, comp);
 }
 
 //*******************QuickSort***************************//
@@ -90,7 +90,7 @@ short ehMenor(Registro v[], int from[], short ativas[], int a, int b)
 	}
 }
 
-void heapsort(Registro v[], short ativas[], int from[], int n, int *transf, int *comp)
+void heapsort(Registro v[], short ativas[], int from[], int n, int *comp)
 {
 	short heap; // é heap?
 	do
@@ -127,7 +127,7 @@ void heapsort(Registro v[], short ativas[], int from[], int n, int *transf, int 
 // Procura por uma unica fita que tenha registros
 // Condição de parada
 // Retorna -1 se mais de uma ou nenhuma fita esteja preenchida.
-int CondicaodaFita(int nQtd_elementos[], int n, int inicio, int *transf, int *comp)
+int CondicaodaFita(int nQtd_elementos[], int n, int inicio, int *comp)
 {
 	int preenchida = -1;
 	for (int i = 0; i < n; i++)
@@ -155,12 +155,11 @@ int CondicaodaFita(int nQtd_elementos[], int n, int inicio, int *transf, int *co
 }
 
 // Verifica se todas as fitas foram percorridas
-short TodasforamPercorridas(FILE **fitas, int Qtd_elementos[], int n, int inicio, int *transf, int *comp)
+short TodasforamPercorridas(FILE **fitas, int Qtd_elementos[], int n, int inicio, int *comp)
 {
 	for (int i = 0; i < n; i++)
 	{
-		(*transf)++;
-		if (ftell(fitas[inicio + i]) / sizeof(Registro) < (unsigned)Qtd_elementos[inicio + i])
+		if (ftell(fitas[inicio + i]) / sizeof(Registro) < Qtd_elementos[inicio + i])
 			return 0;
 	}
 
@@ -168,7 +167,7 @@ short TodasforamPercorridas(FILE **fitas, int Qtd_elementos[], int n, int inicio
 }
 
 // retorna 1 se todos os blocos estão esgotados
-short Blocosacabaram(short ativas[], int n, int *transf, int *comp)
+short Blocosacabaram(short ativas[], int n, int *comp)
 {
 	for (int i = 0; i < n; i++)
 	{
@@ -179,7 +178,7 @@ short Blocosacabaram(short ativas[], int n, int *transf, int *comp)
 	return 1;
 }
 
-void OrdenaFita(FILE *temp, int n, Registro memoria[], FILE **fitas, int numerodeblocos, Lista blocos[FF], int *Qtd_elementos, int fita, int Tamanho_Memoria, int *transf, int *comp, int *ler)
+void OrdenaFita(FILE *temp, int n, Registro memoria[], FILE **fitas, int numerodeblocos, Lista blocos[FF], int *Qtd_elementos, int fita, int Tamanho_Memoria, int *escritas, int *comp, int *ler)
 {
 
 	for (int i = 0; i < numerodeblocos; i++)
@@ -201,18 +200,17 @@ void OrdenaFita(FILE *temp, int n, Registro memoria[], FILE **fitas, int numerod
 		fread(memoria, sizeof(Registro), NumeroDeRegistros, temp);
 
 		(*ler)++;
-		(*transf)++;
 
-		sort(memoria, NumeroDeRegistros, transf, comp); // ordena a memoria
+		sort(memoria, NumeroDeRegistros, comp); // ordena a memoria
 		fwrite(memoria, sizeof(Registro), NumeroDeRegistros, fitas[fita]);
-		(*transf)++;
+		(*escritas)++;
 
 		Qtd_elementos[fita] += NumeroDeRegistros;
 		fita = (fita + 1) % (FF / 2); // Percorre somente entre as fitas de entrada
 	}
 }
 
-void FuncaoPrincipal_1_Ordenacao(int n, FILE *temp, FILE **fitas, int Qtd_elementos[FF], Lista blocos[FF], int *transf, int *comp, int *ler)
+void FuncaoPrincipal_1_Ordenacao(int n, FILE *temp, FILE **fitas, int Qtd_elementos[FF], Lista blocos[FF], int *escritas, int *comp, int *ler)
 {
 
 	// Tamanho da memoria a ser utilizado  -> proposto no enunciado -> usar um vetor de 20 registros
@@ -222,10 +220,12 @@ void FuncaoPrincipal_1_Ordenacao(int n, FILE *temp, FILE **fitas, int Qtd_elemen
 	// Coloca os ponteiros no inicio do arquivo
 	for (int i = 0; i < FF; i++)
 	{
+		(*escritas)++;
 		rewind(fitas[i]);
 	}
 
 	rewind(temp);
+	(*escritas)++;
 	// Numero de elementos na lista recebe 0
 	for (int i = 0; i < FF; i++)
 	{
@@ -251,10 +251,10 @@ void FuncaoPrincipal_1_Ordenacao(int n, FILE *temp, FILE **fitas, int Qtd_elemen
 	}
 
 	//Ordenação
-	OrdenaFita(temp, n, memoria, fitas, numerodeblocos, blocos, Qtd_elementos, fita, Tamanho_Memoria, transf, comp, ler);
+	OrdenaFita(temp, n, memoria, fitas, numerodeblocos, blocos, Qtd_elementos, fita, Tamanho_Memoria, escritas, comp, ler);
 }
 
-void FuncaoPrincipal_2_Intercalacao(int n, FILE *temp, FILE **fitas, int Qtd_elementos[FF], Lista blocos[FF], int *transf, int *comp, int *ler)
+void FuncaoPrincipal_2_Intercalacao(int n, FILE *temp, FILE **fitas, int Qtd_elementos[FF], Lista blocos[FF], int *escritas, int *comp, int *ler)
 {
 
 	Registro memoria[F];
@@ -264,11 +264,11 @@ void FuncaoPrincipal_2_Intercalacao(int n, FILE *temp, FILE **fitas, int Qtd_ele
 	int fita;
 	for (int i = 0; i < FF; i++)
 	{
-		(*transf)++;
+		(*escritas)++;
 		rewind(fitas[i]);
 	}
 	// Essa variavel armazena o indice da única fita preenchida
-	int f = CondicaodaFita(Qtd_elementos, F, F * Fitas_Jump, transf, comp);
+	int f = CondicaodaFita(Qtd_elementos, F, F * Fitas_Jump, comp);
 	while (f == -1)
 	{
 
@@ -276,7 +276,7 @@ void FuncaoPrincipal_2_Intercalacao(int n, FILE *temp, FILE **fitas, int Qtd_ele
 		fita = F * Fitas_Jump;
 		int bloco = 0;
 		// a condição é -> ate percorrer todas as fitas de entrada
-		while (!TodasforamPercorridas(fitas, Qtd_elementos, F, F * (!Fitas_Jump), transf, comp))
+		while (!TodasforamPercorridas(fitas, Qtd_elementos, F, F * (!Fitas_Jump), comp))
 		{
 			// adiciona um novo bloco na fita que foi destinada
 			adicionarItemNoInicioDaLista(&blocos[fita], ftell(fitas[fita]) / sizeof(Registro));
@@ -307,20 +307,19 @@ void FuncaoPrincipal_2_Intercalacao(int n, FILE *temp, FILE **fitas, int Qtd_ele
 					{
 						ativas[i] = 1;
 					}
-					(*transf)++;
 				}
 				else
 					ativas[i] = -1;
 				from[i] = i + (!Fitas_Jump * F);
 			}
 			// enquanto um bloco nao estiver nulo -> valor igual a -1
-			while (!Blocosacabaram(ativas, F, transf, comp))
+			while (!Blocosacabaram(ativas, F, comp))
 			{
 				// ordena a memoria
-				heapsort(memoria, ativas, from, F, transf, comp);
+				heapsort(memoria, ativas, from, F, comp);
 				// joga o menor elemento na fita de saida
 				fwrite(&memoria[0], sizeof(Registro), 1, fitas[fita]);
-				(*transf)++;
+				(*escritas)++;
 				// aumenta o tamanho da fita
 				Qtd_elementos[fita]++;
 				// se a fita do menor está ativa:
@@ -335,7 +334,6 @@ void FuncaoPrincipal_2_Intercalacao(int n, FILE *temp, FILE **fitas, int Qtd_ele
 						// a fita se torna inativa
 						ativas[from[0] % F] = 0;
 					}
-					(*transf)++;
 				}
 				else
 				{
@@ -359,17 +357,18 @@ void FuncaoPrincipal_2_Intercalacao(int n, FILE *temp, FILE **fitas, int Qtd_ele
 			Qtd_elementos[F * (!Fitas_Jump) + i] = 0;
 			// limpa os blocos das fitas de entrada
 			limparLista(&blocos[F * (!Fitas_Jump) + i]);
-			(*transf)++;
+			(*escritas)++;
 		}
 		// troca as fitas de entrada com as fitas de saida
 		Fitas_Jump = !Fitas_Jump;
 		// faz a verificação (se resta apenas uma fita com elementos)
-		f = CondicaodaFita(Qtd_elementos, F, F * (!Fitas_Jump), transf, comp);
+		f = CondicaodaFita(Qtd_elementos, F, F * (!Fitas_Jump), comp);
 	}
 
 	rewind(fitas[f]);
+	(*escritas)++;
 	rewind(temp);
-	(*transf)++;
+	(*escritas)++;
 	Registro r;
 	for (int i = 0; i < n; i++)
 	{
@@ -377,7 +376,7 @@ void FuncaoPrincipal_2_Intercalacao(int n, FILE *temp, FILE **fitas, int Qtd_ele
 		fread(&r, sizeof(Registro), 1, fitas[f]);
 		(*ler)++;
 		fwrite(&r, sizeof(Registro), 1, temp);
-		(*transf) += 2;
+		(*escritas) += 2;
 	}
 }
 
