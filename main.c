@@ -10,8 +10,6 @@
 #include "metodo2.c"
 #include "metodo3.c"
 
-#define TEMP "temp.bin"
-
 // Função responsável por criar o arquivo temporario que irá ser utilizado para ser ordenado
 void criarArquivoTemporario(FILE *arqProvao, FILE *arqTemporario, int quantidade)
 {
@@ -208,8 +206,8 @@ int main(int argc, char *argv[])
         printf("\n> Quicksort externo\n");
         tempoInicialDeExecucao = clock();
 
-        FILE *ArqLEs = fopen(TEMP, "w+b");
-        FILE *ArqEi = fopen(TEMP, "w+b");
+        FILE *ArqLEs = fopen("tempQuickSort.bin", "r+b");
+        FILE *ArqEi = fopen("tempQuickSort.bin", "r+b");
         QuickSortExterno(&arqTemporario, &ArqEi, &ArqLEs, 1, quantidade, &numeroDeEscritas, &numeroDeComparacoesEntreValores);
         fflush(arqTemporario);
         fclose(ArqEi);
@@ -239,8 +237,9 @@ int main(int argc, char *argv[])
     printf("\n\t> Tempo de execucao: %.4lf segundos!\n", ((double)tempoTotalDeExecucao) / CLOCKS_PER_SEC);
 
     printf("\n");
+
+    remove("tempQuickSort.bin");
     
-    remove(TEMP);
     fclose(arqProvao);
     fclose(arqTemporario);
 
