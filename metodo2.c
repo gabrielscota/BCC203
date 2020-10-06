@@ -7,121 +7,119 @@
 
 int verificaMenor(Registro registros[], int from[], int ativas[], int a, int b)
 {
-	if (ativas[from[a] % F] == -1)
-	{
-		return 0;
-	}
-	else if (ativas[from[b] % F] == -1)
-	{
-		return 1;
-	}
-	else
-	{
-		return (registros[b].nota < registros[a].nota);
-	}
+    if (ativas[from[a] % F] == -1)
+    {
+        return 0;
+    }
+    else if (ativas[from[b] % F] == -1)
+    {
+        return 1;
+    }
+    else
+    {
+        return (registros[b].nota < registros[a].nota);
+    }
 }
 
 void heapsortRegistros(Registro registros[], int ativas[], int from[], int n, int *numeroDeComparacoes)
 {
-	int isHeap;
-	do
-	{
-		isHeap = 1;
-		for (int i = 0; i < n / 2; i++)
-		{
-			(*numeroDeComparacoes) += 4;
-			if (2 * i + 2 < n && verificaMenor(registros, from, ativas, 2 * i + 2, 2 * i + 1))
-			{
-				if (verificaMenor(registros, from, ativas, 2 * i + 2, i))
-				{
-					Registro registroAux = registros[i];
-					registros[i] = registros[2 * i + 2];
-					registros[2 * i + 2] = registroAux;
+    int isHeap;
+    do
+    {
+        isHeap = 1;
+        for (int i = 0; i < n / 2; i++)
+        {
+            (*numeroDeComparacoes) += 4;
+            if (2 * i + 2 < n && verificaMenor(registros, from, ativas, 2 * i + 2, 2 * i + 1))
+            {
+                if (verificaMenor(registros, from, ativas, 2 * i + 2, i))
+                {
+                    Registro registroAux = registros[i];
+                    registros[i] = registros[2 * i + 2];
+                    registros[2 * i + 2] = registroAux;
 
-					int aux = from[i];
-					from[i] = from[2 * i + 2];
-					from[2 * i + 2] = aux;
-					isHeap = 0;
-				}
-			}
-			else
-			{
-				if (verificaMenor(registros, from, ativas, 2 * i + 1, i))
-				{
-					Registro registroAux = registros[i];
-					registros[i] = registros[2 * i + 1];
-					registros[2 * i + 1] = registroAux;
+                    int aux = from[i];
+                    from[i] = from[2 * i + 2];
+                    from[2 * i + 2] = aux;
+                    isHeap = 0;
+                }
+            }
+            else
+            {
+                if (verificaMenor(registros, from, ativas, 2 * i + 1, i))
+                {
+                    Registro registroAux = registros[i];
+                    registros[i] = registros[2 * i + 1];
+                    registros[2 * i + 1] = registroAux;
 
-					int aux = from[i];
-					from[i] = from[2 * i + 1];
-					from[2 * i + 1] = aux;
-					isHeap = 0;
-				}
-			}
-		}
-	} while (!isHeap);
+                    int aux = from[i];
+                    from[i] = from[2 * i + 1];
+                    from[2 * i + 1] = aux;
+                    isHeap = 0;
+                }
+            }
+        }
+    } while (!isHeap);
 }
 
 int verificaMenorMarcados(Registro registros[], int registrosMarcados[], int a, int b)
 {
-	if (registrosMarcados[a % F] != 0)
-	{
-		return 0;
-	}
-	else if (registrosMarcados[b % F] != 0)
-	{
-		return 1;
-	}
-	else
-	{
-		return (registros[b].nota < registros[a].nota);
-	}
+    if (registrosMarcados[a % F] != 0)
+    {
+        return 0;
+    }
+    else if (registrosMarcados[b % F] != 0)
+    {
+        return 1;
+    }
+    else
+    {
+        return (registros[b].nota < registros[a].nota);
+    }
 }
 
 void heapsortRegistrosMarcados(Registro registros[], int registrosMarcados[], int n, int *numeroDeComparacoes)
 {
-	int isHeap;
-	do
-	{
-		isHeap = 1;
-		for (int i = 0; i < n / 2; i++)
-		{
-			(*numeroDeComparacoes) += 4;
-			if (2 * i + 2 < n && verificaMenorMarcados(registros, registrosMarcados, 2 * i + 2, 2 * i + 1))
-			{
-				if (verificaMenorMarcados(registros, registrosMarcados, 2 * i + 2, i))
-				{
-					Registro registroAux = registros[i];
-					registros[i] = registros[2 * i + 2];
-					registros[2 * i + 2] = registroAux;
+    int isHeap;
+    do
+    {
+        isHeap = 1;
+        for (int i = 0; i < n / 2; i++)
+        {
+            (*numeroDeComparacoes) += 4;
+            if (2 * i + 2 < n && verificaMenorMarcados(registros, registrosMarcados, 2 * i + 2, 2 * i + 1))
+            {
+                if (verificaMenorMarcados(registros, registrosMarcados, 2 * i + 2, i))
+                {
+                    Registro registroAux = registros[i];
+                    registros[i] = registros[2 * i + 2];
+                    registros[2 * i + 2] = registroAux;
 
-					int aux = registrosMarcados[i];
-					registrosMarcados[i] = registrosMarcados[2 * i + 2];
-					registrosMarcados[2 * i + 2] = aux;
-					isHeap = 0;
-				}
-			}
-			else
-			{
-				if (verificaMenorMarcados(registros, registrosMarcados, 2 * i + 1, i))
-				{
-					Registro registroAux = registros[i];
-					registros[i] = registros[2 * i + 1];
-					registros[2 * i + 1] = registroAux;
+                    int aux = registrosMarcados[i];
+                    registrosMarcados[i] = registrosMarcados[2 * i + 2];
+                    registrosMarcados[2 * i + 2] = aux;
+                    isHeap = 0;
+                }
+            }
+            else
+            {
+                if (verificaMenorMarcados(registros, registrosMarcados, 2 * i + 1, i))
+                {
+                    Registro registroAux = registros[i];
+                    registros[i] = registros[2 * i + 1];
+                    registros[2 * i + 1] = registroAux;
 
-					int aux = registrosMarcados[i];
-					registrosMarcados[i] = registrosMarcados[2 * i + 1];
-					registrosMarcados[2 * i + 1] = aux;
-					isHeap = 0;
-				}
-			}
-		}
-	} while (!isHeap);
+                    int aux = registrosMarcados[i];
+                    registrosMarcados[i] = registrosMarcados[2 * i + 1];
+                    registrosMarcados[2 * i + 1] = aux;
+                    isHeap = 0;
+                }
+            }
+        }
+    } while (!isHeap);
 }
 
 // --- Fim da estrutura do HeapSort --- //
-
-
 
 // --- Inicio da estrutura para a intercalação dos blocos ordenados --- //
 
@@ -384,8 +382,6 @@ void intercalarBlocos(int n, FILE *temp, FILE **fitas, int numeroDeRegistrosNaFi
 
 // --- Fim da estrutura para a intercalação dos blocos ordenados --- //
 
-
-
 // --- Inicio da estrutura para a geração dos blocos ordenados --- //
 
 // Método responsável por pegar o menor registro da mamória na fita alvo até pegar todos os registros do arquivo temporário
@@ -460,8 +456,6 @@ void gerarBlocosOrdenados(int quantidade, FILE *arqTemporario, FILE **fitas, int
 
 // --- Fim da estrutura para a geração dos blocos ordenados --- //
 
-
-
 // Função principal para realizar a ordenação utilizando intercalação de varios caminhos
 int metodo2(int quantidade, FILE *arqTemporario, int *numeroDeLeituras, int *numeroDeEscritas, int *numeroDeComparacoes)
 {
@@ -489,6 +483,19 @@ int metodo2(int quantidade, FILE *arqTemporario, int *numeroDeLeituras, int *num
     gerarBlocosOrdenados(quantidade, arqTemporario, fitas, numeroDeRegistrosNaFita, blocos, numeroDeLeituras, numeroDeEscritas, numeroDeComparacoes);
     // Fase de intercalação dos blocos com as fitas
     intercalarBlocos(quantidade, arqTemporario, fitas, numeroDeRegistrosNaFita, blocos, numeroDeLeituras, numeroDeEscritas, numeroDeComparacoes);
+
+    for (int i = 0; i < FF; i++)
+    {
+        fclose(fitas[i]);
+    }
+
+    for (int i = 0; i < FF; i++)
+    {
+        char nomeFita[8];
+        // Armazena no buffer do nome a concatenação do F com o inteiro i
+        sprintf(nomeFita, "F%d.bin", i);
+        remove(nomeFita);
+    }
 
     return 0;
 }
