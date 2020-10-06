@@ -199,6 +199,7 @@ void OrdenaFita(FILE *temp, int n, Registro memoria[], FILE **fitas, int numerod
 		(*comp)++;
 		//fazer a leitura dos Registros da fita
 		fread(memoria, sizeof(Registro), NumeroDeRegistros, temp);
+
 		(*ler)++;
 		(*transf)++;
 
@@ -223,6 +224,7 @@ void FuncaoPrincipal_1_Ordenacao(int n, FILE *temp, FILE **fitas, int Qtd_elemen
 	{
 		rewind(fitas[i]);
 	}
+
 	rewind(temp);
 	// Numero de elementos na lista recebe 0
 	for (int i = 0; i < FF; i++)
