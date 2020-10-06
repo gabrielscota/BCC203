@@ -2,9 +2,15 @@
 #include <stdlib.h>
 #include <time.h>
 #include <string.h>
+
 #include "structs.h"
-#include "metodo2.c"
 #include "listaMetodo1e2.c"
+
+#include "metodo1.c"
+#include "metodo2.c"
+#include "metodo3.c"
+
+#define TEMP "temp.bin"
 
 // Função responsável por criar o arquivo temporario que irá ser utilizado para ser ordenado
 void criarArquivoTemporario(FILE *arqProvao, FILE *arqTemporario, int quantidade)
@@ -71,8 +77,6 @@ int main(int argc, char *argv[])
         criarArquivoTemporario(arqProvao, arqTemporario, quantidade);
         rewind(arqTemporario);
 
-
-
         // ------- Parte reutilizada do metodo 2 para ordenar o arquivo de acordo com a situação -------
 
         // Criando um vetor para armazenar os ponteiros das fitas
@@ -128,6 +132,17 @@ int main(int argc, char *argv[])
             intercalarBlocos(quantidade, arqTemporario, fitas, numeroDeRegistrosNaFita, blocos, &temp1, &temp2, &temp3);
             rewind(arqTemporario);
         }
+        for (int i = 0; i < FF; i++)
+        {
+            fclose(fitas[i]);
+        }
+        for (int i = 0; i < FF; i++)
+        {
+            char nomeFita[8];
+            // Armazena no buffer do nome a concatenação do F com o inteiro i
+            sprintf(nomeFita, "F%d.bin", i);
+            remove(nomeFita);
+        }
 
         // ------- Fim da parte reutilizada do metodo 2 para ordenar o arquivo de acordo com a situação -------
     }
@@ -178,7 +193,7 @@ int main(int argc, char *argv[])
     case 1:
         printf("\n> Intercalacao Balanceada de varios caminhos - (Metodo de ordenacao)\n");
         tempoInicialDeExecucao = clock();
-        // Chama o metodo aqui
+        metodo1(quantidade, arqTemporario, &numeroDeLeituras, &numeroDeEscritas, &numeroDeComparacoesEntreValores);
         tempoTotalDeExecucao = clock() - tempoInicialDeExecucao;
         break;
     // Método 2: Intercalação Balanceada de Vários Caminhos - Seleção por Substituição
@@ -192,7 +207,14 @@ int main(int argc, char *argv[])
     case 3:
         printf("\n> Quicksort externo\n");
         tempoInicialDeExecucao = clock();
-        // Chama o metodo aqui
+
+        FILE *ArqLEs = fopen(TEMP, "w+b");
+        FILE *ArqEi = fopen(TEMP, "w+b");
+        QuickSortExterno(&arqTemporario, &ArqEi, &ArqLEs, 1, quantidade, &numeroDeEscritas, &numeroDeComparacoesEntreValores);
+        fflush(arqTemporario);
+        fclose(ArqEi);
+        fclose(ArqLEs);
+
         tempoTotalDeExecucao = clock() - tempoInicialDeExecucao;
         break;
     }
@@ -217,7 +239,8 @@ int main(int argc, char *argv[])
     printf("\n\t> Tempo de execucao: %.4lf segundos!\n", ((double)tempoTotalDeExecucao) / CLOCKS_PER_SEC);
 
     printf("\n");
-
+    
+    remove(TEMP);
     fclose(arqProvao);
     fclose(arqTemporario);
 
