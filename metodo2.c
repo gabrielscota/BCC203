@@ -196,8 +196,8 @@ void intercalarBlocos(int n, FILE *temp, FILE **fitas, int numeroDeRegistrosNaFi
     int fitaAlvo;
     for (int i = 0; i < FF; i++)
     {
-        (*numeroDeLeituras)++;
         rewind(fitas[i]);
+        (*numeroDeEscritas)++;
     }
 
     // Variável utilizada para armazenar o indice da unica fita preenchida, caso tenha mais de uma fita preenchida é retornado -1
@@ -325,7 +325,7 @@ void intercalarBlocos(int n, FILE *temp, FILE **fitas, int numeroDeRegistrosNaFi
             // Faz o rewind nas fitas de entrada e saida para executar a próxima intercalação
             rewind(fitas[F * distribuicaoFitas + i]);
             rewind(fitas[F * (!distribuicaoFitas) + i]);
-            (*numeroDeEscritas)++;
+            (*numeroDeEscritas)+=2;
 
             // Define o número de registros nas fitas de entrada como 0
             numeroDeRegistrosNaFita[F * (!distribuicaoFitas) + i] = 0;
@@ -366,7 +366,7 @@ void intercalarBlocos(int n, FILE *temp, FILE **fitas, int numeroDeRegistrosNaFi
 
     rewind(fitas[indiceDaUnicaFitaPreenchida]);
     rewind(temp);
-    (*numeroDeEscritas)++;
+    (*numeroDeEscritas)+=2;
 
     // Método responsável por armazenar todos os registros da ultima fita preenchida no arquivo temporário
     Registro *registro = malloc(1 * sizeof(Registro));
